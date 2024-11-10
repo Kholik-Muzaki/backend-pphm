@@ -1,26 +1,36 @@
+const bcrypt = require('bcryptjs');
+const db = require('../models');  // Pastikan Anda mengimpor db yang tepat
+
 const initUsers = async () => {
     const users = [
         {
             role: 'admin',
             username: 'admin',
-            password: await bcrypt.hash('admin123', 10),
+            password: 'admin123',  // Jangan hash password di sini, biarkan proses hash terjadi di model
         },
         {
             role: 'bendahara',
             username: 'bendahara',
-            password: await bcrypt.hash('bendahara123', 10),
+            password: 'bendahara123',  // Sama, gunakan password plain
         },
     ];
 
-    for (let user of users) {
-        const [createdUser, created] = await db.User.findOrCreate({
-            where: { username: user.username },
-            defaults: user,
-        });
+    try {
+        for (let user of users) {
+            // Pastikan tidak ada duplikasi username, jika sudah ada, akan dilewati
+            const [createdUser, created] = await db.User.findOrCreate({
+                where: { username: user.username },
+                defaults: user,  // Akan memasukkan password plain dan data lainnya
+            });
 
-        // Tambahkan log untuk memastikan password ter-hash dan tersimpan dengan benar
-        console.log(`User: ${user.username}, Password Hash: ${createdUser.password}`);
+            console.log(`User: ${user.username}, Password: ${user.password}`);
+        }
+        console.log('Users have been seeded successfully.');
+    } catch (error) {
+        console.error('Error seeding users:', error);
     }
 };
 
-module.exports = initUsers;
+// Panggil fungsi ini untuk memulai proses seeding
+initUsers();
+
