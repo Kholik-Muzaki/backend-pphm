@@ -1,32 +1,19 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require (".");
 
 module.exports = (sequelize, DataTypes) => {
-    const Berita = sequelize.define("berita", {
+    const Video = sequelize.define("video", {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        image: {
-            type: DataTypes.STRING,
-            allowNull: true
-        },
-        title: {
+        link: {
             type: DataTypes.STRING,
             allowNull: false
         },
-        content: {
-            type: DataTypes.TEXT,
-            allowNull: false
-        },
-        date: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
-        },
-        author: {
+        judul: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: false
         },
         user_id: {
             type: DataTypes.INTEGER,
@@ -37,11 +24,12 @@ module.exports = (sequelize, DataTypes) => {
             }
         }
     }, {
-        tableName: 'berita'
+        tableName: 'video'
     });
 
-    Berita.associate = (models) => {
-        Berita.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+    Video.associate = (models) => {
+        Video.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
     }
-    return Berita;
+
+    return Video;
 };
