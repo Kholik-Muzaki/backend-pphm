@@ -29,7 +29,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users', // Nama tabel User Anda, pastikan sudah sesuai
+          model: 'users', // Nama tabel User Anda, pastikan sudah sesuai
           key: 'id'
         },
         onUpdate: 'CASCADE',

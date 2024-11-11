@@ -10,6 +10,7 @@ const db = {
     User: require('./user')(sequelize, DataTypes),
     Keuangan: require('./keuangan')(sequelize, DataTypes),
     Artikel: require('./artikel')(sequelize, DataTypes),
+    Berita: require('./berita')(sequelize, DataTypes),
 };
 
 Object.keys(db).forEach((modelName) => {

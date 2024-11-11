@@ -4,7 +4,7 @@ const artikelController = require('../controllers/artikelController');
 const { verifyToken } = require('../middlewares/authMiddleware'); // Middleware autentikasi
 
 // Route untuk Admin (dengan autentikasi)
-router.post('/artikel', verifyToken, artikelController.createArtikel);
+router.post('/add-artikel', verifyToken, artikelController.createArtikel);
 router.get('/artikel/:id', verifyToken, artikelController.getArtikel);
 router.put('/artikel/:id', verifyToken, artikelController.updateArtikel);
 router.delete('/artikel/:id', verifyToken, artikelController.deleteArtikel);

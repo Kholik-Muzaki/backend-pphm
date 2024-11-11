@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Artikel', {
+    await queryInterface.createTable('berita', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -10,11 +10,11 @@ module.exports = {
         allowNull: false,
       },
       image: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: true,
       },
       title: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       content: {
@@ -23,21 +23,21 @@ module.exports = {
       },
       date: {
         type: Sequelize.DATE,
-        allowNull: false,
+        defaultValue: Sequelize.NOW,
       },
       author: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING,
         allowNull: true,
       },
       user_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,  // Change to allow null in case of a SET NULL constraint
         references: {
-          model: 'users', // Pastikan nama tabel sesuai dengan tabel user Anda
+          model: 'users', // Ensure this matches the actual table name
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -48,11 +48,11 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      }
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Artikel');
+    await queryInterface.dropTable('berita');
   }
 };
