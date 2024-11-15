@@ -1,16 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const artikelController = require('../controllers/artikelController');
-const { verifyToken } = require('../middlewares/authMiddleware'); // Middleware autentikasi
+const { verifyToken } = require('../middlewares/authMiddleware');
+const upload = require('../middlewares/upload');
 
-// Route untuk Admin (dengan autentikasi)
-router.post('/add-artikel', verifyToken, artikelController.createArtikel);
-router.get('/artikel/:id', verifyToken, artikelController.getArtikel);
-router.put('/artikel/:id', verifyToken, artikelController.updateArtikel);
+router.post('/artikel', verifyToken, upload.single('image'), artikelController.createArtikel);
+router.put('/artikel/:id', verifyToken, upload.single('image'), artikelController.updateArtikel);
 router.delete('/artikel/:id', verifyToken, artikelController.deleteArtikel);
 
-// Route untuk User (tanpa autentikasi)
-router.get('/artikels', artikelController.getAllArtikel);
-router.get('/artikel-public/:id', artikelController.getArtikelPublic); // Detail artikel tanpa autentikasi
+router.get('/artikel', artikelController.getAllArtikel);
+router.get('/artikel/:id', artikelController.getArtikelPublic);
 
 module.exports = router;

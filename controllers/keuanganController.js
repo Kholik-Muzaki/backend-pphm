@@ -98,3 +98,21 @@ exports.deleteKeuangan = async (req, res) => {
         });
     }
 };
+
+exports.getAllKeuangan = async (req, res) => {
+    try {
+        const keuangan = await db.Keuangan.findAll({
+            include: [{
+                model: db.User,
+                as: 'user',
+                attributes: ['username', 'role']
+            }]
+        });
+        res.status(200).json(keuangan);
+    } catch (error) {
+        console.error('Error retrieving keuangan:', error);
+        res.status(500).json({
+            message: 'Error retrieving keuangan'
+        });
+    }
+}

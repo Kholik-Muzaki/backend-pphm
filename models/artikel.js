@@ -1,7 +1,6 @@
 const { DataTypes } = require("sequelize");
-const { sequelize } = require(".");
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
     const Artikel = sequelize.define("Artikel", {
         id: {
             type: DataTypes.INTEGER,
@@ -9,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         image: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING, // Menyimpan path gambar
             allowNull: true
         },
         title: {
@@ -32,16 +31,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'users', // Nama tabel User Anda, pastikan sudah sesuai
+                model: 'users', // Nama tabel user
                 key: 'id'
             }
         }
-
     }, {
         tableName: 'artikel'
     });
+
     Artikel.associate = (models) => {
         Artikel.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
     };
+
     return Artikel;
-}
+};

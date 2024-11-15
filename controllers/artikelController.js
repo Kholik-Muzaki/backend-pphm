@@ -2,12 +2,13 @@ const db = require('../models');
 
 // Tambah artikel
 exports.createArtikel = async (req, res) => {
-    const { image, title, content, date, author } = req.body;
+    const { title, content, date, author } = req.body;
     const user_id = req.user.id;
 
     try {
+        const imagePath = req.file ? req.file.path : null;
         const artikel = await db.Artikel.create({
-            image,
+            image: imagePath,
             title,
             content,
             date,
@@ -15,7 +16,8 @@ exports.createArtikel = async (req, res) => {
             user_id
         });
         res.status(201).json({
-            message: 'Artikel berhasil ditambahkan', data: artikel
+            message: 'Artikel berhasil ditambahkan',
+            data: artikel
         });
     } catch (error) {
         res.status(500).json({
@@ -24,36 +26,10 @@ exports.createArtikel = async (req, res) => {
     }
 }
 
-// Lihat Detail Artikel
-exports.getArtikel = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const artikel = await db.Artikel.findByPk(id, {
-            include: [{
-                model: db.User,
-                as: 'user',
-                attributes: ['username', 'role']
-            }]
-        });
-        if (!artikel) {
-            return res.status(404).json({
-                message: 'Artikel tidak ditemukan'
-            });
-        }
-        res.status(200).json(artikel);
-    } catch (error) {
-        console.error('Error retrieving artikel:', error);
-        res.status(500).json({
-            message: 'Error retrieving artikel'
-        });
-    }
-}
-
 // Edit Artikel
 exports.updateArtikel = async (req, res) => {
     const { id } = req.params;
-    const { image, title, content, date, author } = req.body;
+    const { title, content, date, author } = req.body;
 
     try {
         const artikel = await db.Artikel.findByPk(id);
@@ -63,7 +39,12 @@ exports.updateArtikel = async (req, res) => {
             });
         }
 
-        artikel.image = image;
+        // Jika ada file yang di-upload, ganti path image dengan file baru
+        if (req.file) {
+            artikel.image = req.file.path;
+        }
+
+        // Perbarui field lainnya
         artikel.title = title;
         artikel.content = content;
         artikel.date = date;
@@ -71,7 +52,8 @@ exports.updateArtikel = async (req, res) => {
 
         await artikel.save();
         res.status(200).json({
-            message: 'Artikel berhasil diperbarui', artikel
+            message: 'Artikel berhasil diperbarui',
+            data: artikel
         });
     } catch (error) {
         console.error('Error updating artikel:', error);
@@ -79,7 +61,7 @@ exports.updateArtikel = async (req, res) => {
             message: 'Error updating artikel'
         });
     }
-}
+};
 
 // Delete Artikel
 exports.deleteArtikel = async (req, res) => {

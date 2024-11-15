@@ -23,7 +23,7 @@ exports.createAlbumWithImages = async (req, res) => {
         // Ambil album lengkap beserta foto-fotonya untuk response
         const fullAlbum = await db.Album.findByPk(album.id, {
             include: [
-                {
+                { 
                     model: db.Image,
                     as: 'images',
                     attributes: ['src', 'caption']

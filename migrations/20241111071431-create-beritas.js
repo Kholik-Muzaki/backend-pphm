@@ -23,6 +23,7 @@ module.exports = {
       },
       date: {
         type: Sequelize.DATE,
+        allowNull: false,
         defaultValue: Sequelize.NOW,
       },
       author: {
@@ -31,13 +32,13 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.INTEGER,
-        allowNull: true,  // Change to allow null in case of a SET NULL constraint
+        allowNull: true, // Kolom ini bisa null jika user dihapus
         references: {
-          model: 'users', // Ensure this matches the actual table name
+          model: 'users', // Nama tabel user, pastikan sesuai
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'SET NULL', // Set null jika user dihapus
       },
       createdAt: {
         type: Sequelize.DATE,

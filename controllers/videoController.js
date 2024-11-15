@@ -23,32 +23,6 @@ exports.createVideo = async (req, res) => {
     }
 };
 
-// Lihat Detail Video (Admin only)
-exports.getVideo = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const video = await db.Video.findByPk(id, {
-            include: [{
-                model: db.User,
-                as: 'user',
-                attributes: ['username', 'role']
-            }]
-        });
-        if (!video) {
-            return res.status(404).json({
-                message: 'Video tidak ditemukan'
-            });
-        }
-        res.status(200).json(video);
-    } catch (error) {
-        console.error('Error retrieving video:', error);
-        res.status(500).json({
-            message: 'Error retrieving video'
-        });
-    }
-};
-
 // Edit Video (Admin only)
 exports.updateVideo = async (req, res) => {
     const { id } = req.params;

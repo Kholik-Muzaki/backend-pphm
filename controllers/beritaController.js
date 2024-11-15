@@ -2,12 +2,13 @@ const db = require('../models');
 
 // Tambah berita (Admin only)
 exports.createBerita = async (req, res) => {
-    const { image, title, content, date, author } = req.body;
+    const { title, content, date, author } = req.body;
     const user_id = req.user.id;
 
     try {
+        const imagePath = req.file ? req.file.path : null;
         const berita = await db.Berita.create({
-            image,
+            image: imagePath,
             title,
             content,
             date,
@@ -26,36 +27,10 @@ exports.createBerita = async (req, res) => {
     }
 };
 
-// Lihat Detail Berita (Admin only)
-exports.getBerita = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const berita = await db.Berita.findByPk(id, {
-            include: [{
-                model: db.User,
-                as: 'user',
-                attributes: ['username', 'role']
-            }]
-        });
-        if (!berita) {
-            return res.status(404).json({
-                message: 'Berita tidak ditemukan'
-            });
-        }
-        res.status(200).json(berita);
-    } catch (error) {
-        console.error('Error retrieving berita:', error);
-        res.status(500).json({
-            message: 'Error retrieving berita'
-        });
-    }
-};
-
 // Edit Berita (Admin only)
 exports.updateBerita = async (req, res) => {
     const { id } = req.params;
-    const { image, title, content, date, author } = req.body;
+    const { title, content, date, author } = req.body;
 
     try {
         const berita = await db.Berita.findByPk(id);
@@ -65,7 +40,12 @@ exports.updateBerita = async (req, res) => {
             });
         }
 
-        berita.image = image;
+        //  jika ada file yang di-upload, ganti path image dengan file baru
+        if (req.file) {
+            berita.image = req.file.path;
+        }
+
+        // perbarui field lainnya
         berita.title = title;
         berita.content = content;
         berita.date = date;
@@ -108,7 +88,6 @@ exports.deleteBerita = async (req, res) => {
     }
 };
 
-// Lihat Semua Berita untuk Pengunjung (tanpa login)
 exports.getAllBerita = async (req, res) => {
     try {
         const beritaList = await db.Berita.findAll({

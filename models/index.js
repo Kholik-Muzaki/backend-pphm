@@ -12,7 +12,7 @@ const db = {
     Artikel: require('./artikel')(sequelize, DataTypes),
     Berita: require('./berita')(sequelize, DataTypes),
     Video: require('./video')(sequelize, DataTypes),
-    Album: require('./album')(sequelize, DataTypes),
+    Album: require('./album.js')(sequelize, DataTypes),
     Image: require('./image')(sequelize, DataTypes),
 };
 

@@ -1,58 +1,60 @@
-'use strict';
+// models/Artikel.js
+const { DataTypes } = require("sequelize");
 
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Artikel', {
-      id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-        allowNull: false,
-      },
-      image: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
-      },
-      title: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
-      },
-      content: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      date: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      author: {
-        type: Sequelize.STRING(100),
-        allowNull: true,
-      },
-      user_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'users', // Pastikan nama tabel sesuai dengan tabel user Anda
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+module.exports = (sequelize) => {
+  const Artikel = sequelize.define("Artikel", {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    image: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    title: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    author: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'users', // Pastikan ini sesuai dengan nama tabel user di database
+        key: 'id'
       }
-    });
-  },
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    }
+  }, {
+    tableName: 'Artikel', // Menentukan nama tabel sesuai keinginan
+    freezeTableName: true // Mencegah Sequelize untuk mengubah nama tabel menjadi bentuk jamak
+  });
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Artikel');
-  }
+  Artikel.associate = (models) => {
+    Artikel.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
+  };
+
+  return Artikel;
 };
