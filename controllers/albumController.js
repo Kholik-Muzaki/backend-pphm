@@ -14,7 +14,7 @@ exports.createAlbumWithImages = async (req, res) => {
             const imagePromises = req.files.map((file) => {
                 return db.Image.create({
                     album_id: album.id,
-                    src: file.path, // Path file gambar
+                    src: file.path,
                     caption: '' // Optional: Bisa diisi sesuai kebutuhan
                 });
             });
@@ -23,25 +23,28 @@ exports.createAlbumWithImages = async (req, res) => {
             imageData = await Promise.all(imagePromises);
         }
 
-        // Ambil album lengkap beserta foto-fotonya untuk response
-        const fullAlbum = {
-            id: album.id,
-            title: album.title,
-            description: album.description,
-            images: imageData.map((image) => ({
-                id: image.id,       // Sertakan id gambar
-                src: image.src,     // Path gambar
-                caption: image.caption // Caption gambar
-            }))
-        };
-
         res.status(201).json({
-            message: 'Album dan foto-foto berhasil ditambahkan',
-            data: fullAlbum
+            status: 'success',
+            message: 'Album and images successfully created',
+            data: {
+                album: {
+                    id: album.id,
+                    title: album.title,
+                    description: album.description,
+                    images: imageData.map((image) => ({
+                        id: image.id,
+                        src: image.src,
+                        caption: image.caption,
+                    })),
+                },
+            },
         });
     } catch (error) {
         console.error('Error creating album with images:', error);
-        res.status(500).json({ message: 'Terjadi kesalahan saat menambahkan album dan foto' });
+        res.status(500).json({
+            status: 'error',
+            message: 'An unexpected error occurred while creating the album',
+        });
     }
 };
 
@@ -54,17 +57,26 @@ exports.getAllAlbums = async (req, res) => {
                 {
                     model: db.Image,
                     as: 'images',
-                    attributes: ['src', 'caption']
-                }
+                    attributes: ['id', 'src', 'caption'],
+                },
             ],
-            attributes: ['id', 'title', 'description']
+            attributes: ['id', 'title', 'description'],
         });
-        res.status(200).json(albums);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Albums retrieved successfully',
+            data: albums,
+        });
     } catch (error) {
         console.error('Error retrieving albums:', error);
-        res.status(500).json({ message: 'Error retrieving albums' });
+        res.status(500).json({
+            status: 'error',
+            message: 'An unexpected error occurred while retrieving the albums',
+        });
     }
 };
+
 
 // 3. Mendapatkan detail album berdasarkan ID beserta foto-fotonya (untuk publik dan admin)
 exports.getAlbumById = async (req, res) => {
@@ -76,37 +88,52 @@ exports.getAlbumById = async (req, res) => {
                 {
                     model: db.Image,
                     as: 'images',
-                    attributes: ['src', 'caption']
-                }
-            ]
+                    attributes: ['id', 'src', 'caption'],
+                },
+            ],
         });
+
         if (!album) {
-            return res.status(404).json({ message: 'Album tidak ditemukan' });
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Album not found',
+            });
         }
-        res.status(200).json(album);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Album retrieved successfully',
+            data: album,
+        });
     } catch (error) {
         console.error('Error retrieving album:', error);
-        res.status(500).json({ message: 'Error retrieving album' });
+        res.status(500).json({
+            status: 'error',
+            message: 'An unexpected error occurred while retrieving the album',
+        });
     }
 };
 
+
 // 4. Memperbarui album dan foto-fotonya berdasarkan ID (Admin Only)
 exports.updateAlbumWithImages = async (req, res) => {
-    const { id } = req.params; // ID album diambil dari URL params
+    const { id } = req.params;
     const { title, description } = req.body;
 
     try {
-        // Cari album berdasarkan ID
         const album = await db.Album.findByPk(id, {
-            include: [{ model: db.Image, as: 'images' }]
+            include: [{ model: db.Image, as: 'images' }],
         });
 
         if (!album) {
-            return res.status(404).json({ message: 'Album tidak ditemukan' });
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Album not found',
+            });
         }
 
         // Perbarui informasi album
-        album.title = title || album.title; // Jika tidak ada input, tetap gunakan data lama
+        album.title = title || album.title;
         album.description = description || album.description;
         await album.save();
 
@@ -119,27 +146,31 @@ exports.updateAlbumWithImages = async (req, res) => {
             const newImages = req.files.map((file) => ({
                 album_id: album.id,
                 src: file.path,
-                caption: '' // Optional: Bisa diisi sesuai kebutuhan
+                caption: '',
             }));
 
-            // Simpan gambar baru ke database
             await db.Image.bulkCreate(newImages);
         }
 
         // Ambil album terbaru dengan gambar yang diperbarui
         const updatedAlbum = await db.Album.findByPk(album.id, {
-            include: [{ model: db.Image, as: 'images', attributes: ['id', 'src', 'caption'] }]
+            include: [{ model: db.Image, as: 'images', attributes: ['id', 'src', 'caption'] }],
         });
 
         res.status(200).json({
-            message: 'Album berhasil diperbarui',
-            data: updatedAlbum
+            status: 'success',
+            message: 'Album successfully updated',
+            data: updatedAlbum,
         });
     } catch (error) {
         console.error('Error updating album:', error);
-        res.status(500).json({ message: 'Terjadi kesalahan saat memperbarui album' });
+        res.status(500).json({
+            status: 'error',
+            message: 'An unexpected error occurred while updating the album',
+        });
     }
 };
+
 
 // 5. Menghapus album beserta foto-fotonya berdasarkan ID (Admin Only)
 exports.deleteAlbum = async (req, res) => {
@@ -147,14 +178,26 @@ exports.deleteAlbum = async (req, res) => {
 
     try {
         const album = await db.Album.findByPk(id);
+
         if (!album) {
-            return res.status(404).json({ message: 'Album tidak ditemukan' });
+            return res.status(404).json({
+                status: 'fail',
+                message: 'Album not found',
+            });
         }
 
         await album.destroy();
-        res.status(200).json({ message: 'Album dan foto-foto terkait berhasil dihapus' });
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Album and associated images successfully deleted',
+        });
     } catch (error) {
         console.error('Error deleting album:', error);
-        res.status(500).json({ message: 'Error deleting album' });
+        res.status(500).json({
+            status: 'error',
+            message: 'An unexpected error occurred while deleting the album',
+        });
     }
 };
+

@@ -1,135 +1,175 @@
 const db = require('../models');
 
-// Tambah Video (Admin only)
-exports.createVideo = async (req, res) => {
-    const { link, judul } = req.body;
-    const user_id = req.user.id;
+// Controller Video
+const VideoController = {
+    // Tambah Video (Admin Only)
+    createVideo: async (req, res) => {
+        const { link, judul } = req.body;
+        const user_id = req.user.id;
 
-    try {
-        const video = await db.Video.create({
-            link,
-            judul,
-            user_id
-        });
-        res.status(201).json({
-            message: 'Video berhasil ditambahkan',
-            data: video
-        });
-    } catch (error) {
-        console.error('Error creating video:', error);
-        res.status(500).json({
-            message: 'Terjadi kesalahan saat menambahkan video'
-        });
-    }
-};
+        try {
+            const video = await db.Video.create({
+                link,
+                judul,
+                user_id,
+            });
 
-// Edit Video (Admin only)
-exports.updateVideo = async (req, res) => {
-    const { id } = req.params;
-    const { link, judul } = req.body;
-
-    try {
-        const video = await db.Video.findByPk(id);
-        if (!video) {
-            return res.status(404).json({
-                message: 'Video tidak ditemukan'
+            res.status(201).json({
+                status: 'success',
+                message: 'Video berhasil ditambahkan',
+                data: video,
+            });
+        } catch (error) {
+            console.error('Error creating video:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat menambahkan video',
             });
         }
+    },
 
-        video.link = link;
-        video.judul = judul;
+    // Edit Video (Admin Only)
+    updateVideo: async (req, res) => {
+        const { id } = req.params;
+        const { link, judul } = req.body;
 
-        await video.save();
-        res.status(200).json({
-            message: 'Video berhasil diperbarui',
-            data: video
-        });
-    } catch (error) {
-        console.error('Error updating video:', error);
-        res.status(500).json({
-            message: 'Error updating video'
-        });
-    }
-};
+        try {
+            const video = await db.Video.findByPk(id);
+            if (!video) {
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'Video tidak ditemukan',
+                });
+            }
 
-// Delete Video (Admin only)
-exports.deleteVideo = async (req, res) => {
-    const { id } = req.params;
+            video.link = link || video.link;
+            video.judul = judul || video.judul;
 
-    try {
-        const video = await db.Video.findByPk(id);
-        if (!video) {
-            return res.status(404).json({
-                message: 'Video tidak ditemukan'
+            await video.save();
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Video berhasil diperbarui',
+                data: video,
+            });
+        } catch (error) {
+            console.error('Error updating video:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat memperbarui video',
             });
         }
+    },
 
-        await video.destroy();
-        res.status(200).json({
-            message: 'Video berhasil dihapus'
-        });
-    } catch (error) {
-        console.error('Error deleting video:', error);
-        res.status(500).json({
-            message: 'Error deleting video'
-        });
-    }
-};
+    // Hapus Video (Admin Only)
+    deleteVideo: async (req, res) => {
+        const { id } = req.params;
 
-// Lihat Semua Video untuk Pengunjung (tanpa login)
-exports.getAllVideos = async (req, res) => {
-    try {
-        const videoList = await db.Video.findAll({
-            attributes: ['id', 'link', 'judul', 'user_id'],
-            order: [['createdAt', 'DESC']]
-        });
-        res.status(200).json(videoList);
-    } catch (error) {
-        console.error('Error retrieving video list:', error);
-        res.status(500).json({ message: 'Error retrieving videos' });
-    }
-};
+        try {
+            const video = await db.Video.findByPk(id);
+            if (!video) {
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'Video tidak ditemukan',
+                });
+            }
 
-// Lihat Semua Video untuk Admin (dengan login)
-exports.getAllVideosAdmin = async (req, res) => {
-    try {
-        const videoList = await db.Video.findAll({
-            include: [{
-                model: db.User,
-                as: 'user',
-                attributes: ['username', 'role']
-            }],
-            order: [['createdAt', 'DESC']]
-        });
-        res.status(200).json(videoList);
-    } catch (error) {
-        console.error('Error retrieving video list for admin:', error);
-        res.status(500).json({ message: 'Error retrieving videos for admin' });
-    }
-};
+            await video.destroy();
 
-// Lihat Detail Video Tanpa Autentikasi (untuk Pengunjung/Public)
-exports.getVideoPublic = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const video = await db.Video.findByPk(id, {
-            include: [{
-                model: db.User,
-                as: 'user',
-                attributes: ['username']
-            }]
-        });
-        if (!video) {
-            return res.status(404).json({
-                message: 'Video tidak ditemukan'
+            res.status(200).json({
+                status: 'success',
+                message: 'Video berhasil dihapus',
+            });
+        } catch (error) {
+            console.error('Error deleting video:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat menghapus video',
             });
         }
-        res.status(200).json(video);
-    } catch (error) {
-        console.error('Error retrieving video:', error);
-        res.status(500).json({
-            message: 'Error retrieving video'
-        });
-    }
+    },
+
+    // Lihat Semua Video untuk Pengunjung (Tanpa Login)
+    getAllVideos: async (req, res) => {
+        try {
+            const videoList = await db.Video.findAll({
+                attributes: ['id', 'link', 'judul', 'user_id'],
+                order: [['createdAt', 'DESC']],
+            });
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Semua video berhasil diambil',
+                data: videoList,
+            });
+        } catch (error) {
+            console.error('Error retrieving video list:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat mengambil daftar video',
+            });
+        }
+    },
+
+    // Lihat Semua Video untuk Admin (Dengan Login)
+    getAllVideosAdmin: async (req, res) => {
+        try {
+            const videoList = await db.Video.findAll({
+                include: [{
+                    model: db.User,
+                    as: 'user',
+                    attributes: ['username', 'role'],
+                }],
+                order: [['createdAt', 'DESC']],
+            });
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Semua video berhasil diambil untuk admin',
+                data: videoList,
+            });
+        } catch (error) {
+            console.error('Error retrieving video list for admin:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat mengambil daftar video untuk admin',
+            });
+        }
+    },
+
+    // Lihat Detail Video Tanpa Login (Untuk Pengunjung/Public)
+    getVideoPublic: async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            const video = await db.Video.findByPk(id, {
+                include: [{
+                    model: db.User,
+                    as: 'user',
+                    attributes: ['username'],
+                }],
+            });
+
+            if (!video) {
+                return res.status(404).json({
+                    status: 'fail',
+                    message: 'Video tidak ditemukan',
+                });
+            }
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Detail video berhasil diambil',
+                data: video,
+            });
+        } catch (error) {
+            console.error('Error retrieving video:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat mengambil detail video',
+            });
+        }
+    },
 };
+
+module.exports = VideoController;

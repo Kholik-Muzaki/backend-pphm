@@ -7,6 +7,7 @@ const artikelRoutes = require('./routes/artikelRoutes');
 const beritaRoutes = require('./routes/beritaRoutes');
 const videoRoutes = require('./routes/videoRoutes');
 const albumRoutes = require('./routes/albumRoutes');
+const cors = require('cors')
 
 const app = express();
 const PORT = 3000;
@@ -16,7 +17,14 @@ app.use(bodyParser.json());
 // menyediakan akses ke folder uploads sebagai static files
 app.use('/uploads', express.static('uploads'));
 
-// Tambahkan route auth
+// konfigurasi cors
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+}));
+
+// route
 app.use('/api/auth', authRoutes);
 app.use('/api/', keuanganRoutes);
 app.use('/api/', artikelRoutes);

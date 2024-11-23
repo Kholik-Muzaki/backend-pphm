@@ -9,4 +9,7 @@ router.post('/login', authController.login);
 // Route untuk update profil pengguna yang memerlukan autentikasi
 router.put('/updateProfile', verifyToken, authController.updateProfile);
 
+// route untuk get informasi user
+router.get('/profile', verifyToken, authController.getProfile);
+
 module.exports = router;

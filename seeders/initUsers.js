@@ -7,6 +7,7 @@ const initUsers = async () => {
             role: 'admin',
             username: 'admin',
             password: 'admin123',  // Jangan hash password di sini, biarkan proses hash terjadi di model
+
         },
         {
             role: 'bendahara',
