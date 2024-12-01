@@ -11,32 +11,36 @@ if (!JWT_SECRET) {
 // Fungsi untuk mengupdate profil pengguna
 exports.updateProfile = async (req, res) => {
     const { username, password } = req.body;
-    const userId = req.user.id; // Menggunakan ID pengguna yang sudah terautentikasi
+    const userId = req.user.id; // ID pengguna yang sudah terautentikasi
 
+    // Validasi input: Username atau password harus ada
     if (!username && !password) {
         return res.status(400).json({
-            status: 'fail',
-            message: 'Username or password is required to update',
+            status: "fail",
+            message: "Username or password is required to update",
         });
     }
 
     try {
+        // Cari pengguna berdasarkan ID
         const user = await db.User.findByPk(userId);
 
+        // Jika pengguna tidak ditemukan
         if (!user) {
             return res.status(404).json({
-                status: 'fail',
-                message: 'User not found',
+                status: "fail",
+                message: "User not found",
             });
         }
 
-        // Periksa apakah username ingin diubah dan apakah username sudah digunakan
+        // Jika username ingin diubah
         if (username && username !== user.username) {
+            // Periksa apakah username sudah digunakan
             const existingUser = await db.User.findOne({ where: { username } });
             if (existingUser) {
                 return res.status(409).json({
-                    status: 'fail',
-                    message: 'Username already exists. Please choose another username.',
+                    status: "fail",
+                    message: "Username already exists. Please choose another username.",
                 });
             }
             user.username = username; // Update username
@@ -51,8 +55,8 @@ exports.updateProfile = async (req, res) => {
         await user.save();
 
         return res.status(200).json({
-            status: 'success',
-            message: 'Profile updated successfully',
+            status: "success",
+            message: "Profile updated successfully",
             data: {
                 user: {
                     id: user.id,
@@ -62,10 +66,13 @@ exports.updateProfile = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error('Error updating profile:', error);
+        console.error("Error updating profile:", error);
+
+        // Kirim respon error internal server
         return res.status(500).json({
-            status: 'error',
-            message: 'An unexpected error occurred while updating the profile. Please try again later.',
+            status: "error",
+            message: "An unexpected error occurred while updating the profile.",
+            error: error.message, // Tambahkan detail error jika diperlukan
         });
     }
 };
@@ -124,6 +131,7 @@ exports.login = async (req, res) => {
                     user: {
                         id: user.id,
                         username: user.username,
+                        password: user.password,
                         role: user.role,
                     },
                 },
@@ -160,6 +168,7 @@ exports.getProfile = async (req, res) => {
                 user: {
                     id: user.id,
                     username: user.username,
+                    password: user.password,
                     role: user.role,
                 },
             },

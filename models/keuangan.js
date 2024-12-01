@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DECIMAL(15, 2),
             allowNull: false
         },
+        tanggal: { // Tambahkan kolom tanggal
+            type: DataTypes.DATE,
+            allowNull: false
+        },
         keterangan: {
             type: DataTypes.STRING,
             allowNull: true
