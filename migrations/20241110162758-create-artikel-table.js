@@ -1,60 +1,58 @@
-// models/Artikel.js
-const { DataTypes } = require("sequelize");
+'use strict';
 
-module.exports = (sequelize) => {
-  const Artikel = sequelize.define("Artikel", {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-      allowNull: false
-    },
-    image: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    title: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    content: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    date: {
-      type: DataTypes.DATE,
-      allowNull: false
-    },
-    author: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'users', // Pastikan ini sesuai dengan nama tabel user di database
-        key: 'id'
-      }
-    },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    }
-  }, {
-    tableName: 'Artikel', // Menentukan nama tabel sesuai keinginan
-    freezeTableName: true // Mencegah Sequelize untuk mengubah nama tabel menjadi bentuk jamak
-  });
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('Artikel', {
+      id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      image: {
+        type: Sequelize.STRING(255),
+        allowNull: true,
+      },
+      title: {
+        type: Sequelize.STRING(255),
+        allowNull: false,
+      },
+      content: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      date: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      author: {
+        type: Sequelize.STRING(100),
+        allowNull: true,
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW,
+      },
+    });
+  },
 
-  Artikel.associate = (models) => {
-    Artikel.belongsTo(models.User, { foreignKey: 'user_id', as: 'user' });
-  };
-
-  return Artikel;
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('Artikel');
+  },
 };
