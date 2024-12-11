@@ -10,5 +10,6 @@ router.delete('/artikel/:id', verifyToken, ArtikelController.deleteArtikel);
 
 router.get('/artikel', ArtikelController.getAllArtikel);
 router.get('/artikel/:id', ArtikelController.getArtikelPublic);
+router.get('/artikelSummary', ArtikelController.getSummaryArtikel);
 
 module.exports = router;

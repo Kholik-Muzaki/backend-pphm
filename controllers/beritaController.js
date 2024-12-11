@@ -156,6 +156,30 @@ const BeritaController = {
             });
         }
     },
+
+    // get SUmmary Berita
+    getSummaryBerita: async (req, res) => {
+        try {
+            // Menghitung total berita
+            const totalBerita = await db.Berita.count();
+
+            // Mengirim respons dengan ringkasan data
+            res.status(200).json({
+                status: 'success',
+                message: 'Ringkasan berita berhasil diambil',
+                data: {
+                    totalBerita,
+                },
+            });
+        } catch (error) {
+            console.error('Error retrieving berita summary:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat mengambil ringkasan berita',
+            });
+        }
+    },
+
 };
 
 module.exports = BeritaController;

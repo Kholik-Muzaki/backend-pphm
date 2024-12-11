@@ -153,6 +153,45 @@ const KeuanganController = {
             });
         }
     },
+
+    // Lihat Ringkasan Data Keuangan
+    getSummary: async (req, res) => {
+        try {
+            // Menggunakan agregasi untuk menghitung jumlah transaksi masuk, transaksi keluar, total pemasukan, dan total pengeluaran
+            const summary = await db.Keuangan.findAll({
+                attributes: [
+                    [db.sequelize.fn('COUNT', db.sequelize.literal("CASE WHEN jenisTransaksi = 'pemasukan' THEN 1 ELSE NULL END")), 'transaksiMasuk'],
+                    [db.sequelize.fn('COUNT', db.sequelize.literal("CASE WHEN jenisTransaksi = 'pengeluaran' THEN 1 ELSE NULL END")), 'transaksiKeluar'],
+                    [db.sequelize.fn('SUM', db.sequelize.literal("CASE WHEN jenisTransaksi = 'pemasukan' THEN jumlah ELSE 0 END")), 'totalPemasukan'],
+                    [db.sequelize.fn('SUM', db.sequelize.literal("CASE WHEN jenisTransaksi = 'pengeluaran' THEN jumlah ELSE 0 END")), 'totalPengeluaran'],
+                ],
+            });
+
+            const { transaksiMasuk, transaksiKeluar, totalPemasukan, totalPengeluaran } = summary[0].dataValues;
+
+            const saldo = parseFloat(totalPemasukan) - parseFloat(totalPengeluaran);
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Ringkasan data keuangan berhasil diambil',
+                data: {
+                    transaksiMasuk: parseInt(transaksiMasuk, 10) || 0,
+                    transaksiKeluar: parseInt(transaksiKeluar, 10) || 0,
+                    totalPemasukan: parseFloat(totalPemasukan) || 0,
+                    totalPengeluaran: parseFloat(totalPengeluaran) || 0,
+                    saldo: saldo || 0,
+                },
+            });
+        } catch (error) {
+            console.error('Error retrieving summary:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat mengambil ringkasan data keuangan',
+            });
+        }
+    },
+
+
 };
 
 module.exports = KeuanganController;

@@ -11,5 +11,6 @@ router.delete('/berita/:id', verifyToken, beritaController.deleteBerita);
 
 router.get('/berita', beritaController.getAllBerita);
 router.get('/berita/:id', beritaController.getBeritaPublic);
+router.get('/beritaSummary', verifyToken, beritaController.getSummaryBerita);
 
 module.exports = router;

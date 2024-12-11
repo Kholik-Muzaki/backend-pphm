@@ -156,6 +156,30 @@ const ArtikelController = {
             });
         }
     },
+
+    // get summary total artikel
+    getSummaryArtikel: async (req, res) => {
+        try {
+            // Menghitung total artikel
+            const totalArtikel = await db.Artikel.count();
+
+            // Mengirim respons dengan ringkasan data
+            res.status(200).json({
+                status: 'success',
+                message: 'Ringkasan artikel berhasil diambil',
+                data: {
+                    totalArtikel,
+                },
+            });
+        } catch (error) {
+            console.error('Error retrieving artikel summary:', error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Terjadi kesalahan saat mengambil ringkasan artikel',
+            });
+        }
+    },
+
 };
 
 module.exports = ArtikelController;
